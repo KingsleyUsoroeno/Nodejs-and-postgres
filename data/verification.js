@@ -1,5 +1,6 @@
 const Jwt = require("jsonwebtoken");
-const SECRET_KEY = "asterix-needs-permit-a-38";
+require('dotenv').config();
+const SECRET_KEY = process.env.SECRET_KEY;
 // NOT PERMITABLE FOR A REAL WORLD APPLICATION USE A .DOTENV FILE INSTEAD
 
 function verifyUser(req, res, next) {
@@ -7,8 +8,7 @@ function verifyUser(req, res, next) {
   if (!token) return res.status(401).json({ error: "Access Denied" });
 
   try {
-    const privateKey = process.env.TOKEN_SECRET || SECRET_KEY;
-    const verified = Jwt.verify(token, privateKey);
+    const verified = Jwt.verify(token, SECRET_KEY);
     req.user = verified;
     console.log(req.user);
     next();
@@ -18,24 +18,22 @@ function verifyUser(req, res, next) {
 }
 
 const verifyToken = (req, res, next) => {
-  const token = req.query.token;
-  // console.log(`user token is ` + token);
 
-  // Jwt takes the token and verifies it , if the token is verified with an error we throw a 401 ,
-  // unauthorised error
-  jwt.verify(token, SECRET_KEY, (err, decoded) => {
-    if (err) {
-      // 401 Unauthorized -- 'Incorrect token'
-      res.status(401).json({
-        message: "user is unAuthorised"
-      });
-    }else{
-      req.user = decoded;
-    }
-    console.log(req.user);
-    
+  var token = req.headers['auth-token'];
+  if(!token) return res.status(401).send({
+    auth: false,
+    message: 'No token provided.'
+  })
+
+  Jwt.verify(token, SECRET_KEY, (err, decoded) => {
+    if(err) return res.status(500).send({
+      auth: false,
+      message:'Failed to authenticate token'
+    })
+
+    console.log('decoded user is ' + decoded);
     next();
-  });
+  })
 };
 
 module.exports =  {

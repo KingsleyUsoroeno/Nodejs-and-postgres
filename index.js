@@ -7,10 +7,10 @@ const session = require("express-session");
 //Configure our App
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 8080;
 
 const db = require("./data/queries");
-const cities = require("./routes/icecream");
+const cities = require("./routes/cities");
 const auth = require("./auth/auth");
 const { verifyToken, verifyUser } = require("./data/verification");
 const userRouter = require('./data/queries');
@@ -26,7 +26,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //Configure isProduction variable
 const isProduction = process.env.NODE_ENV === "production";
 
-app.get("/", verifyUser, (request, response) => {
+app.get("/", verifyToken, (request, response) => {
   response.json({ info: "Node.js, Express, and Postgres API" });
 });
 

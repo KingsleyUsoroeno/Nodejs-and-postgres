@@ -82,7 +82,7 @@ router.post("/login", (req, res) => {
           if (result) {
             // set the cookie in the header for that logged in user
             res.cookie("user_id", user.id);
-            // Generate a Jwt token for that user
+            // Generate a Jwt token for that user to be used for subsequent requests
             const token = Jwt.sign({user: user}, SECRET_KEY, {expiresIn: 3600000});
             res.json({
               ok: true,
@@ -102,5 +102,16 @@ router.post("/login", (req, res) => {
     });
   }
 });
+
+//forgot password route 
+
+
+router.get('/logout', (req, res) => {
+  res.status.send({
+    auth:false,
+    token: null
+  })
+
+})
 
 module.exports = router;
